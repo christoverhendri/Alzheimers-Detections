@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Remember Me Do</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+</head>
+
+<body>
+
+<nav class="navbar">
+    <div>Remember Me Do</div>
+    <a href="{{ url_for('home') }}">Home</a>
+    <a href="{{ url_for('predict_page') }}">Predict</a>
+    <a href="{{ url_for('dashboard') }}">Patient Info</a>
+</nav>
+
+<div class="page-wrapper">
+    <h1>Selamat Datang di Remember Me Do</h1>
+    <p>Sistem pendeteksi tingkat demensia berbasis MRI.</p>
+
+    <a class="btn" href="{{ url_for('predict_page') }}">Mulai Prediksi</a>
+    <br><br>
+    <a class="btn" href="{{ url_for('dashboard') }}">Lihat Dashboard Pasien</a>
+</div>
+
+</body>
+</html>
