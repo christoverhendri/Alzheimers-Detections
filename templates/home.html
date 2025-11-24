@@ -3,6 +3,170 @@
 <head>
     <title>Remember Me Do</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 60px 20px 80px;
+            color: white;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .hero-section h1 {
+            font-size: 42px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            display: inline-block;
+            background: linear-gradient(90deg, #ff6b9d 0%, #ffa07a 100%);
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-style: italic;
+        }
+
+        .subtitle strong {
+            font-weight: 600;
+        }
+
+        .content-section {
+            background: #f5f5f5;
+            padding: 60px 20px;
+            min-height: 50vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .info-box {
+            background: #fef08a;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-box p {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #1f2937;
+            margin-bottom: 20px;
+        }
+
+        .info-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .action-box {
+            text-align: left;
+        }
+
+        .action-box h2 {
+            font-size: 32px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 30px;
+            line-height: 1.3;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 18px 35px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid;
+        }
+
+        .btn-outline {
+            background: white;
+            color: #ec4899;
+            border-color: #ec4899;
+        }
+
+        .btn-outline:hover {
+            background: #ec4899;
+            color: white;
+        }
+
+        .btn-primary {
+            background: #fef08a;
+            color: #1f2937;
+            border-color: #fef08a;
+        }
+
+        .btn-primary:hover {
+            background: #fde047;
+            border-color: #fde047;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .hero-section h1 {
+                font-size: 32px;
+            }
+
+            .action-box h2 {
+                font-size: 24px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -14,13 +178,29 @@
     <a href="{{ url_for('dashboard') }}">Patient Info</a>
 </nav>
 
-<div class="page-wrapper">
-    <h1>Selamat Datang di Remember Me Do</h1>
-    <p>Sistem pendeteksi tingkat demensia berbasis MRI.</p>
+"hero-section">
+    <div class="logo">LOGO</div>
+    <h1>Alzheimer Risk Self-Assessment</h1>
+    <div class="subtitle">by <strong>Remember-Me-Do</strong> team</div>
+</div>
 
-    <a class="btn" href="{{ url_for('predict_page') }}">Mulai Prediksi</a>
-    <br><br>
-    <a class="btn" href="{{ url_for('dashboard') }}">Lihat Dashboard Pasien</a>
+<div class="content-section">
+    <div class="container">
+        <div class="info-box">
+            <p>Alzheimer adalah gangguan progresif yang menyerang otak, gangguan memori dan fungsi mental penting. Menjadi penyebab utama atas 60–70% dari sekitar 55 juta kasus demensia global pada tahun 2023.</p>
+            <p>Sebagian besar pasien Alzheimer menunjukkan gejala setelah usia 65 tahun, yang dikenal sebagai Alzheimer onset terlambat. Jenis ini mencakup lebih dari 90% dari semua kasus.</p>
+            <p>Remember-Me-Do Project menggunakan model ML untuk memberikan self-assessment kasual yang bisa menjadi identifikasi diagnosa Alzheimer.</p>
+        </div>
+
+        <div class="action-box">
+            <h2>Seluruh privasi data akan kami jaga, Silahkan upload foto scan MRI untuk mendapatkan hasil</h2>
+            
+            <div class="button-group">
+                <a href="#upload" class="btn btn-outline">Upload foto MRI</a>
+                <a href="#results" class="btn btn-primary">Dapatkan hasil →</a>
+            </div>
+        </div>
+    </div>
 </div>
 
 </body>
