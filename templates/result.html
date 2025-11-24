@@ -1,33 +1,126 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="id">
 <head>
-    <title>Prediction Result</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Probabilitas Alzheimer</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
 </head>
-
 <body>
+    <div class="container">
+        <div class="card">
+            <div id="content">
+                <div class="loading">Memuat data...</div>
+            </div>
+        </div>
+    </div>
 
-<nav class="navbar">
-    <div>Remember Me Do</div>
-    <a href="{{ url_for('home') }}">Home</a>
-    <a href="{{ url_for('predict_page') }}">Predict</a>
-    <a href="{{ url_for('dashboard') }}">Patient Info</a>
-</nav>
+    <div class="footer">
+        <div class="logo">LOGO</div>
+    </div>
 
-<div class="page-wrapper">
+    <script>
+        // ============================================
+        // GANTI BASE URL API ANDA DI SINI
+        // ============================================
+        const API_BASE_URL = 'http://localhost:5000';  // Ganti dengan URL backend Anda
+        const API_ENDPOINT = `${API_BASE_URL}/predict-page`;
+        // ============================================
+        
+        // Fungsi untuk mengambil data dari URL parameter atau session storage
+        function getPredictionResult() {
+    // Ambil data langsung dari variabel Jinja yang dikirim backend
+    const predictedClass = '{{ predicted_class }}';
+    const probability = '{{ probability }}'; // Ini akan menjadi string
 
-    <h1>Prediction Result</h1>
+    // Tambahkan pemeriksaan dasar untuk memastikan data ada
+    if (predictedClass && predictedClass !== 'None' && probability && probability !== 'None') {
+        return {
+            predicted_class: predictedClass,
+            // Konversi ke float, karena dari template akan berupa string
+            probability: parseFloat(probability)
+        };
+    }
+    return null;
+}
+        
+        // Fungsi untuk mapping class name ke kategori yang user-friendly
+        function mapClassToCategory(className) {
+            const mapping = {
+                "NonDemented": "non demented",
+                "VeryMildDemented": "very mild demented",
+                "MildDemented": "mild demented",
+                "ModerateDemented": "moderate demented"
+            };
+            return mapping[className] || className.toLowerCase();
+        }
+        
+        // Fungsi untuk memproses data hasil prediksi
+        function processApiData(apiData) {
+            const probability = Math.round(apiData.probability);
+            const category = mapClassToCategory(apiData.predicted_class);
+            
+            return {
+                probability: probability,
+                category: category
+            };
+        }
 
-    <p><strong>Predicted Class:</strong> {{ predicted_class }}</p>
-    <p><strong>Probability:</strong> {{ probability }}%</p>
+        // Fungsi untuk merender konten
+        function renderContent(data) {
+            const probability = Math.round(data.probability);
+            const category = data.category;
+            
+            const contentHTML = `
+                <h1 class="title">Probabilitas kamu memiliki diagnosa Alzheimer adalah</h1>
+                <div class="probability">${probability}%</div>
+                <div class="slider-container">
+                    <div class="slider-track">
+                        <div class="slider-fill" style="width: ${probability}%">
+                            <div class="slider-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+                <p class="description">
+                    ini menempatkanmu sebagai orang dengan 
+                    <span class="category">${category}</span> 
+                    dalam memiliki Alzheimer.
+                </p>
+                <button class="cta-button" onclick="viewMRIExample()">
+                    Klik untuk melihat contoh foto MRI
+                </button>
+            `;
+            
+            document.getElementById('content').innerHTML = contentHTML;
+        }
 
-    <img src="{{ url_for('uploaded_file', filename=filename) }}" class="preview-img">
+        // Fungsi untuk memuat data
+        function loadData() {
+            document.getElementById('content').innerHTML = '<div class="loading">Memuat data...</div>';
+            
+            try {
+                const predictionData = getPredictionResult();
+                
+                if (!predictionData) {
+                    renderError('Tidak ada data prediksi. Silakan upload gambar MRI terlebih dahulu.');
+                    return;
+                }
+                
+                const processedData = processApiData(predictionData);
+                renderContent(processedData);
+            } catch (error) {
+                renderError(error.message || 'Terjadi kesalahan saat memproses data');
+            }
+        }
 
-    <br><br>
-    <a class="btn" href="{{ url_for('predict_page') }}">Back</a>
-
-</div>
-
+        // Inisialisasi
+        window.addEventListener('DOMContentLoaded', () => {
+            // Load data dari URL params atau session storage
+            loadData();
+            
+            // Untuk testing dengan mock data, uncomment baris ini:
+            // useMockData();
+        });
+    </script>
 </body>
 </html>
