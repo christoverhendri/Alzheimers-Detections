@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Result</title>
+    <link rel="stylesheet" href="static/css/base.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-left">Remember Me Do</div>
+        <div class="nav-right">
+            <a href="home.html">Home</a>
+            <a href="index.html">Predict</a>
+            <a href="dashboard.html">Patient Info</a>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <h2>Prediction Result</h2>
+
+            <div id="resultBox"></div>
+
+            <div class="button-group">
+                <a href="index.html" class="btn">Predict Again</a>
+                <a href="home.html" class="btn">Back to Home</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const data = JSON.parse(localStorage.getItem("predictionResult"));
+
+        if (!data) {
+            document.getElementById("resultBox").innerHTML = "<p>No prediction found.</p>";
+        } else {
+            document.getElementById("resultBox").innerHTML = `
+                <h3>Predicted Class: ${data.predicted_class}</h3>
+                <p>Confidence: ${data.probability}%</p>
+                <img src="static/uploads/${data.filename}" 
+                     style="max-width: 300px; border-radius: 12px; margin-top: 20px;">
+            `;
+        }
+    </script>
+
+</body>
+</html>

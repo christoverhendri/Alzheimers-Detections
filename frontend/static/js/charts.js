@@ -6,6 +6,12 @@ Chart.defaults.animation = {
     easing: "easeOutQuart"
 };
 
+// Diagnosis label mapping
+const diagnosisMap = {
+    "0": "No Dementia",
+    "1": "Dementia"
+};
+
 async function fetchJson(url) {
     const r = await fetch(url);
     if (!r.ok) throw new Error(`Fetch failed: ${url}`);
@@ -66,7 +72,7 @@ function elegantRadar(ctx, labels, datasets) {
 document.addEventListener("DOMContentLoaded", async () => {
 
     // ---- SUMMARY ----
-    const summary = await fetchJson("/api/summary");
+    const summary = await fetchJson("http://localhost:5000/api/summary");
     const s = document.getElementById("summary-cards");
     s.innerHTML = `
         <div class="summ-card"><div>${summary.total}</div><span>Total Patients</span></div>
@@ -83,7 +89,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     `;
 
     // ---- DIAGNOSIS COUNT ----
-    const diag = await fetchJson("/api/diagnosis_counts");
+    const diag = await fetchJson("http://localhost:5000/api/diagnosis_counts");
     elegantBar(
         document.getElementById("diagnosisChart").getContext("2d"),
         diag.labels,
@@ -93,7 +99,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
 
     // ---- AGE ----
-    const age = await fetchJson("/api/age_distribution");
+    const age = await fetchJson("http://localhost:5000/api/age_distribution");
     elegantBar(
         document.getElementById("ageChart").getContext("2d"),
         age.labels,
@@ -103,9 +109,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
 
     // ---- BMI ----
-    const bmi = await fetchJson("/api/bmi_stats");
-    const bmiLabels = Object.keys(bmi);
-    const bmiMeans = bmiLabels.map(k => bmi[k].mean);
+    const bmi = await fetchJson("http://localhost:5000/api/bmi_stats");
+    const bmiLabels = Object.keys(bmi).map(k => diagnosisMap[k] || k);
+    const bmiMeans = Object.keys(bmi).map(k => bmi[k].mean);
 
     elegantBar(
         document.getElementById("bmiChart").getContext("2d"),
@@ -116,7 +122,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
 
     // ---- EDUCATION ----
-    const edu = await fetchJson("/api/education_vs_diagnosis");
+    const edu = await fetchJson("http://localhost:5000/api/education_vs_diagnosis");
     new Chart(document.getElementById("eduChart"), {
         type: "bar",
         data: {
@@ -134,19 +140,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     // ---- SMOKING ----
-    const smoke = await fetchJson("/api/smoking_by_diag");
+    const smoke = await fetchJson("http://localhost:5000/api/smoking_by_diag");
+    const smokeLabels = Object.keys(smoke).map(k => diagnosisMap[k] || k);
+    const smokeValues = Object.keys(smoke).map(k => smoke[k]);
+    
     elegantBar(
         document.getElementById("smokeChart").getContext("2d"),
-        Object.keys(smoke),
-        Object.values(smoke),
+        smokeLabels,
+        smokeValues,
         "Smoking (mean)",
         "#72EFDD", "#56CFE1"
     );
 
     // ---- ALCOHOL ----
-    const alc = await fetchJson("/api/alcohol_stats");
-    const alcLabels = Object.keys(alc);
-    const alcMeds = alcLabels.map(k => alc[k].median);
+    const alc = await fetchJson("http://localhost:5000/api/alcohol_stats");
+    const alcLabels = Object.keys(alc).map(k => diagnosisMap[k] || k);
+    const alcMeds = Object.keys(alc).map(k => alc[k].median);
 
     elegantBar(
         document.getElementById("alcoholChart").getContext("2d"),
@@ -157,19 +166,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
 
     // ---- ACTIVITY ----
-    const act = await fetchJson("/api/activity_by_diag");
+    const act = await fetchJson("http://localhost:5000/api/activity_by_diag");
+    const actLabels = Object.keys(act).map(k => diagnosisMap[k] || k);
+    const actValues = Object.keys(act).map(k => act[k]);
+    
     elegantBar(
         document.getElementById("activityChart").getContext("2d"),
-        Object.keys(act),
-        Object.values(act),
+        actLabels,
+        actValues,
         "Physical Activity",
         "#B5E48C", "#76C893"
     );  
 
     // ---- COGNITIVE ----
-    const cognitive = await fetchJson("/api/cognitive_stats");
-    const mmseLabels = Object.keys(cognitive);
-    const mmseMeans = mmseLabels.map(k => cognitive[k]["MMSE"].mean);
+    const cognitive = await fetchJson("http://localhost:5000/api/cognitive_stats");
+    const mmseLabels = Object.keys(cognitive).map(k => diagnosisMap[k] || k);
+    const mmseMeans = Object.keys(cognitive).map(k => cognitive[k]["MMSE"].mean);
 
     elegantBar(
         document.getElementById("mmseChart").getContext("2d"),
@@ -180,7 +192,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
 
     // ---- RADAR ----
-    const radar = await fetchJson("/api/radar_data");
+    const radar = await fetchJson("http://localhost:5000/api/radar_data");
     elegantRadar(
         document.getElementById("radarChart").getContext("2d"),
         radar.labels,
@@ -188,7 +200,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
 
     // ---- CORRELATION (Top 5 by absolute value) ----
-    const corr = await fetchJson("/api/correlation_diagnosis");
+    const corr = await fetchJson("http://localhost:5000/api/correlation_diagnosis");
 
     // gabungkan fitur + nilai
     let pairs = corr.features.map((f, i) => ({

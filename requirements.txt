@@ -1,4 +1,8 @@
 Flask==2.3.2
-numpy
-Werkzeug
-Pillow
+numpy==1.23.5
+Werkzeug==2.3.7
+Pillow==10.2.0
+
+# Kompatibel penuh dengan .h5
+tensorflow==2.18.0
+keras==3.8.0

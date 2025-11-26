@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predict Alzheimer Stage</title>
+    <link rel="stylesheet" href="static/css/base.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-left">Remember Me Do</div>
+        <div class="nav-right">
+            <a href="home.html">Home</a>
+            <a href="index.html">Predict</a>
+            <a href="dashboard.html">Patient Info</a>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <h2>Upload MRI Image</h2>
+
+            <form id="uploadForm">
+                <input type="file" name="file" id="file" accept="image/*" required />
+                <button type="submit" class="btn">Predict</button>
+            </form>
+
+            <div id="result"></div>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById("uploadForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            console.log("FORM SUBMITTED");
+
+            try {
+                const fileInput = document.getElementById("file");
+                if (!fileInput.files[0]) {
+                    throw new Error("No file selected");
+                }
+                
+                const formData = new FormData();
+                formData.append("file", fileInput.files[0]);
+                
+                console.log("Uploading file:", fileInput.files[0].name);
+
+                const res = await fetch("http://localhost:5000/api/predict", {
+                    method: "POST",
+                    body: formData
+                });
+
+                console.log("FETCH DONE. STATUS:", res.status);
+
+                let text = await res.text();
+                console.log("RAW RESPONSE:", text);
+
+                if (!res.ok) {
+                    throw new Error(`HTTP Error: ${res.status} - ${text}`);
+                }
+
+                let data = JSON.parse(text);
+                console.log("PARSED JSON:", data);
+
+                if (!data.filename || !data.predicted_class) {
+                    console.error("Missing fields. Got:", data);
+                    throw new Error("Invalid API response: missing required fields (filename or predicted_class)");
+                }
+
+                console.log("Saving to localStorage...");
+                localStorage.setItem("predictionResult", JSON.stringify(data));
+                console.log("Stored data:", localStorage.getItem("predictionResult"));
+                
+                console.log("REDIRECTING to result.html...");
+                window.location.href = "result.html";
+
+            } catch (err) {
+                console.error("ERROR:", err);
+                alert("Error: " + err.message);
+            }
+        });
+        </script>
+
+</body>
+</html>
