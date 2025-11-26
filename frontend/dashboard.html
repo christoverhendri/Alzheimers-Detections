@@ -2,9 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- CSS -->
+    <link rel="stylesheet" href="static/css/base.css">
     <link rel="stylesheet" href="static/css/dashboard.css">
 
     <!-- Chart.js -->
@@ -15,121 +22,117 @@
 
     <!-- NAVBAR -->
     <nav class="navbar">
-        <div class="nav-left">Remember Me Do</div>
+        <div class="nav-left">🧠 Remember Me Do</div>
         <div class="nav-right">
             <a href="home.html">Home</a>
             <a href="index.html">Predict</a>
-            <a href="dashboard.html">Dashboard</a>
+            <a href="dashboard.html">Patient Info</a>
         </div>
     </nav>
 
-    <div class="container">
+    <main style="display: block; flex: 1; padding: 0; min-height: calc(100vh - 70px);">
+        <div style="max-width: 1400px; margin: 0 auto; padding: 48px 24px;">
 
         <!-- PAGE TITLE -->
-        <h1 class="title">Patient Dashboard</h1>
+        <h1 style="text-align: center; margin-bottom: 48px; font-size: 2.5rem;">📊 Patient Dashboard</h1>
 
         <!-- ============================
-             SECTION 1 — SUMMARY
+             SECTION 1 — SUMMARY (KPI CARDS)
         ============================ -->
         <section>
             <h2 class="section-title">Summary Overview</h2>
-            <div id="summary-cards" class="summary-grid"></div>
+            <div id="summary-cards" class="grid-4"></div>
         </section>
 
         <!-- ============================
              SECTION 2 — DEMOGRAPHICS
         ============================ -->
         <section>
-            <h2 class="section-title">Demographics</h2>
+            <h2 class="section-title">Demographics Analysis</h2>
             <div class="grid-2">
                 <div class="card">
-                    <h3>Diagnosis Count</h3>
+                    <h3>📋 Diagnosis Distribution</h3>
                     <canvas id="diagnosisChart"></canvas>
                 </div>
 
                 <div class="card">
-                    <h3>Age Distribution</h3>
+                    <h3>👥 Age Distribution</h3>
                     <canvas id="ageChart"></canvas>
                 </div>
             </div>
         </section>
 
         <!-- ============================
-             SECTION 3 — LIFESTYLE
+             SECTION 3 — LIFESTYLE FACTORS
         ============================ -->
         <section>
             <h2 class="section-title">Lifestyle Factors</h2>
-            <div class="grid-2">
-
+            <div class="grid-3">
                 <div class="card">
-                    <h3>Smoking Behavior</h3>
+                    <h3>🚬 Smoking Behavior</h3>
                     <canvas id="smokeChart"></canvas>
                 </div>
 
                 <div class="card">
-                    <h3>Alcohol Consumption</h3>
+                    <h3>🍷 Alcohol Consumption</h3>
                     <canvas id="alcoholChart"></canvas>
                 </div>
 
                 <div class="card">
-                    <h3>Physical Activity</h3>
+                    <h3>🏃 Physical Activity</h3>
                     <canvas id="activityChart"></canvas>
                 </div>
-
             </div>
         </section>
 
         <!-- ============================
-             SECTION 4 — EDUCATION & BMI
+             SECTION 4 — SOCIOECONOMIC & HEALTH
         ============================ -->
         <section>
             <h2 class="section-title">Socioeconomic & Health Indicators</h2>
             <div class="grid-2">
-
                 <div class="card">
-                    <h3>Education vs Diagnosis</h3>
+                    <h3>🎓 Education vs Diagnosis</h3>
                     <canvas id="eduChart"></canvas>
                 </div>
 
                 <div class="card">
-                    <h3>BMI Statistics</h3>
+                    <h3>⚖️ BMI Statistics</h3>
                     <canvas id="bmiChart"></canvas>
                 </div>
-
             </div>
         </section>
 
         <!-- ============================
-             SECTION 5 — COGNITIVE
+             SECTION 5 — COGNITIVE ASSESSMENT
         ============================ -->
         <section>
-            <h2 class="section-title">Cognitive Scores</h2>
+            <h2 class="section-title">Cognitive Assessment</h2>
             <div class="grid-2">
-
                 <div class="card">
-                    <h3>MMSE Scores</h3>
+                    <h3>🧩 MMSE Scores Comparison</h3>
                     <canvas id="mmseChart"></canvas>
                 </div>
 
                 <div class="card">
-                    <h3>Radar Feature Overview</h3>
+                    <h3>🎯 Feature Overview (Radar)</h3>
                     <canvas id="radarChart"></canvas>
                 </div>
-
             </div>
         </section>
 
         <!-- ============================
-             SECTION 6 — CORRELATION
+             SECTION 6 — CORRELATION ANALYSIS
         ============================ -->
         <section>
-            <h2 class="section-title">Top 5 Feature Correlation</h2>
+            <h2 class="section-title">Feature Correlation with Diagnosis</h2>
             <div class="card scroll-x">
-                <div id="corrTable"></div>
+                <div id="corrTable" style="padding: 20px;"></div>
             </div>
         </section>
 
-    </div>
+        </div>
+    </main>
 
     <!-- JS -->
     <script src="static/js/charts.js"></script>

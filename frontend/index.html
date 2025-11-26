@@ -3,13 +3,68 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Predict Alzheimer Stage</title>
+    <title>MRI Dementia Prediction</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="static/css/base.css">
+    <style>
+        .upload-card {
+            background: linear-gradient(135deg, rgba(30, 58, 95, 0.02) 0%, rgba(0, 188, 212, 0.02) 100%);
+            border: 2px dashed var(--color-secondary);
+            padding: 60px 40px;
+            text-align: center;
+            border-radius: 16px;
+            transition: var(--transition);
+            cursor: pointer;
+            margin: 30px 0;
+        }
+
+        .upload-card:hover {
+            border-color: var(--color-primary);
+            background: linear-gradient(135deg, rgba(30, 58, 95, 0.05) 0%, rgba(0, 188, 212, 0.05) 100%);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-label {
+            cursor: pointer;
+        }
+
+        .processing {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 20px;
+            color: var(--color-secondary);
+        }
+
+        .spinner {
+            border: 3px solid rgba(0, 188, 212, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--color-secondary);
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 
 <body>
     <nav class="navbar">
-        <div class="nav-left">Remember Me Do</div>
+        <div class="nav-left">🧠 Remember Me Do</div>
         <div class="nav-right">
             <a href="home.html">Home</a>
             <a href="index.html">Predict</a>
@@ -19,69 +74,102 @@
 
     <main>
         <div class="container">
-            <h2>Upload MRI Image</h2>
+            <h2>MRI Dementia Status Prediction</h2>
+            <p class="subtitle">Upload MRI image untuk analisis tingkat demensia berbasis AI</p>
 
             <form id="uploadForm">
-                <input type="file" name="file" id="file" accept="image/*" required />
-                <button type="submit" class="btn">Predict</button>
+                <div class="upload-card" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <h3 style="margin: 15px 0; color: var(--color-primary);">Upload MRI Image</h3>
+                    <p style="color: var(--color-text-secondary); margin: 0;">
+                        Drag and drop your MRI image here or click to select
+                    </p>
+                    <input type="file" id="file" name="file" accept="image/*" required />
+                </div>
+
+                <button type="submit" class="btn">🔍 Analyze & Predict</button>
             </form>
+
+            <div id="processingIndicator" class="processing" style="display: none;">
+                <div class="spinner"></div>
+                <span>Analyzing MRI image...</span>
+            </div>
 
             <div id="result"></div>
         </div>
     </main>
 
     <script>
-        document.getElementById("uploadForm").addEventListener("submit", async function (e) {
+        const uploadArea = document.getElementById("uploadArea");
+        const fileInput = document.getElementById("file");
+        const uploadForm = document.getElementById("uploadForm");
+        const processingIndicator = document.getElementById("processingIndicator");
+
+        // Drag and drop
+        uploadArea.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = "var(--color-primary)";
+            uploadArea.style.background = "rgba(0, 188, 212, 0.05)";
+        });
+
+        uploadArea.addEventListener("dragleave", () => {
+            uploadArea.style.borderColor = "var(--color-secondary)";
+            uploadArea.style.background = "linear-gradient(135deg, rgba(30, 58, 95, 0.02) 0%, rgba(0, 188, 212, 0.02) 100%)";
+        });
+
+        uploadArea.addEventListener("drop", (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = "var(--color-secondary)";
+            fileInput.files = e.dataTransfer.files;
+        });
+
+        uploadArea.addEventListener("click", () => fileInput.click());
+
+        fileInput.addEventListener("change", () => {
+            if (fileInput.files[0]) {
+                uploadArea.querySelector("p").textContent = `Selected: ${fileInput.files[0].name}`;
+                uploadArea.querySelector("h3").style.color = "var(--color-secondary)";
+            }
+        });
+
+        uploadForm.addEventListener("submit", async function (e) {
             e.preventDefault();
 
-            console.log("FORM SUBMITTED");
+            if (!fileInput.files[0]) {
+                alert("Please select an image first");
+                return;
+            }
+
+            processingIndicator.style.display = "flex";
 
             try {
-                const fileInput = document.getElementById("file");
-                if (!fileInput.files[0]) {
-                    throw new Error("No file selected");
-                }
-                
                 const formData = new FormData();
                 formData.append("file", fileInput.files[0]);
-                
-                console.log("Uploading file:", fileInput.files[0].name);
 
                 const res = await fetch("http://localhost:5000/api/predict", {
                     method: "POST",
                     body: formData
                 });
 
-                console.log("FETCH DONE. STATUS:", res.status);
-
-                let text = await res.text();
-                console.log("RAW RESPONSE:", text);
-
                 if (!res.ok) {
-                    throw new Error(`HTTP Error: ${res.status} - ${text}`);
+                    throw new Error(`API Error: ${res.status}`);
                 }
 
-                let data = JSON.parse(text);
-                console.log("PARSED JSON:", data);
+                let data = await res.json();
 
                 if (!data.filename || !data.predicted_class) {
-                    console.error("Missing fields. Got:", data);
-                    throw new Error("Invalid API response: missing required fields (filename or predicted_class)");
+                    throw new Error("Invalid response from API");
                 }
 
-                console.log("Saving to localStorage...");
                 localStorage.setItem("predictionResult", JSON.stringify(data));
-                console.log("Stored data:", localStorage.getItem("predictionResult"));
-                
-                console.log("REDIRECTING to result.html...");
                 window.location.href = "result.html";
 
             } catch (err) {
-                console.error("ERROR:", err);
+                processingIndicator.style.display = "none";
                 alert("Error: " + err.message);
             }
         });
-        </script>
+    </script>
 
 </body>
 </html>

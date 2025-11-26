@@ -1,9 +1,20 @@
-// ========= GLOBAL CHART STYLE =========
-Chart.defaults.font.family = "'Inter', sans-serif";
-Chart.defaults.color = "#444";
+// ========= GLOBAL CHART STYLE & CONFIG =========
+Chart.defaults.font.family = "'Poppins', 'Inter', sans-serif";
+Chart.defaults.color = "#666";
 Chart.defaults.animation = {
-    duration: 1200,
+    duration: 1000,
     easing: "easeOutQuart"
+};
+
+// Color Palette (Professional Gradients)
+const colors = {
+    primary: "#1e3a5f",
+    secondary: "#00bcd4",
+    accent: "#64b5f6",
+    success: "#4caf50",
+    warning: "#ff9800",
+    error: "#f44336",
+    neutral: "#e0e4e8"
 };
 
 // Diagnosis label mapping
@@ -25,6 +36,13 @@ function gradient(ctx, c1, c2) {
     return g;
 }
 
+function horizontalGradient(ctx, c1, c2) {
+    const g = ctx.createLinearGradient(0, 0, 400, 0);
+    g.addColorStop(0, c1);
+    g.addColorStop(1, c2);
+    return g;
+}
+
 function elegantBar(ctx, labels, data, label, c1, c2) {
     return new Chart(ctx, {
         type: "bar",
@@ -35,32 +53,82 @@ function elegantBar(ctx, labels, data, label, c1, c2) {
                 data: data,
                 backgroundColor: (e) => gradient(e.chart.ctx, c1, c2),
                 borderRadius: 12,
+                borderSkipped: false,
                 borderWidth: 0,
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            plugins: { 
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: colors.primary,
+                    padding: 12,
+                    titleFont: { size: 14, weight: 600 },
+                    bodyFont: { size: 13 },
+                    borderColor: colors.secondary,
+                    borderWidth: 1
+                }
+            },
             scales: {
-                x: { grid: { display: false } },
-                y: { grid: { color: "#eee" } }
+                x: { 
+                    grid: { display: false },
+                    ticks: { font: { size: 12, weight: 500 } }
+                },
+                y: { 
+                    grid: { color: "rgba(0,0,0,0.05)", drawBorder: false },
+                    ticks: { font: { size: 12 } }
+                }
             }
         }
     });
 }
 
 function elegantRadar(ctx, labels, datasets) {
+    // Assign colors to datasets
+    const dsColors = [
+        { border: colors.secondary, bg: "rgba(0, 188, 212, 0.1)" },
+        { border: colors.primary, bg: "rgba(30, 58, 95, 0.1)" }
+    ];
+
+    datasets.forEach((ds, i) => {
+        ds.borderColor = dsColors[i]?.border || colors.accent;
+        ds.backgroundColor = dsColors[i]?.bg || "rgba(100, 181, 246, 0.1)";
+        ds.borderWidth = 2;
+        ds.pointBackgroundColor = dsColors[i]?.border || colors.accent;
+        ds.pointBorderColor = "#fff";
+        ds.pointBorderWidth = 2;
+        ds.pointRadius = 5;
+        ds.pointHoverRadius = 7;
+    });
+
     return new Chart(ctx, {
         type: "radar",
         data: { labels, datasets },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: "bottom",
+                    labels: { font: { size: 12, weight: 500 }, padding: 15 }
+                },
+                tooltip: {
+                    backgroundColor: colors.primary,
+                    padding: 12,
+                    titleFont: { size: 13, weight: 600 },
+                    bodyFont: { size: 12 },
+                    borderColor: colors.secondary,
+                    borderWidth: 1
+                }
+            },
             scales: {
                 r: {
                     beginAtZero: true,
-                    grid: { color: "#ddd" }
+                    grid: { color: "rgba(0,0,0,0.08)" },
+                    ticks: { font: { size: 11 } }
                 }
             }
         }
@@ -75,17 +143,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     const summary = await fetchJson("http://localhost:5000/api/summary");
     const s = document.getElementById("summary-cards");
     s.innerHTML = `
-        <div class="summ-card"><div>${summary.total}</div><span>Total Patients</span></div>
-        <div class="summ-card"><div>${summary.percent_alzheimer}%</div><span>Alzheimer %</span></div>
-        <div class="summ-card"><div>${summary.mean_age}</div><span>Mean Age</span></div>
-        <div class="summ-card gender-card">
-            <div>
-                <div class="gender-row male">Male: ${summary.gender_male}%</div>
-                <div class="gender-row female">Female: ${summary.gender_female}%</div>
+        <div class="summ-card">
+            <div>👥</div>
+            <div>${summary.total}</div>
+            <span>Total Patients</span>
+        </div>
+        <div class="summ-card">
+            <div>🏥</div>
+            <div>${summary.percent_alzheimer}%</div>
+            <span>Alzheimer %</span>
+        </div>
+        <div class="summ-card">
+            <div>📅</div>
+            <div>${summary.mean_age}</div>
+            <span>Mean Age</span>
+        </div>
+        <div class="summ-card">
+            <div>⚖️</div>
+            <div style="font-size: 1.2rem;">
+                <div class="gender-row male">M: ${summary.gender_male}%</div>
+                <div class="gender-row female">F: ${summary.gender_female}%</div>
             </div>
             <span>Gender Ratio</span>
         </div>
-
     `;
 
     // ---- DIAGNOSIS COUNT ----
@@ -94,7 +174,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("diagnosisChart").getContext("2d"),
         diag.labels,
         diag.values,
-        "Diagnosis Count",
+        "Diagnosis Distribution",
         "#4CC9F0", "#4895EF"
     );
 
