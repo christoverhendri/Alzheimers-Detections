@@ -178,7 +178,7 @@
     <a href="{{ url_for('dashboard') }}">Patient Info</a>
 </nav>
 
-"hero-section">
+<div class="hero-section">
     <div class="logo">LOGO</div>
     <h1>Alzheimer Risk Self-Assessment</h1>
     <div class="subtitle">by <strong>Remember-Me-Do</strong> team</div>
@@ -196,8 +196,7 @@
             <h2>Seluruh privasi data akan kami jaga, Silahkan upload foto scan MRI untuk mendapatkan hasil</h2>
             
             <div class="button-group">
-                <a href="#upload" class="btn btn-outline">Upload foto MRI</a>
-                <a href="#results" class="btn btn-primary">Dapatkan hasil →</a>
+                <a href="{{ url_for('predict_page') }}">Dapatkan hasil →</a>
             </div>
         </div>
     </div>
