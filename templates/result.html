@@ -1,126 +1,246 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Probabilitas Alzheimer</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <title>Prediction Result</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/base.css?v=999">
+    <style>
+        .result-container {
+            text-align: center;
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        .prediction-card {
+            background: var(--surface);
+            color: var(--text);
+            padding: var(--spacing-3xl);
+            border-radius: var(--radius);
+            margin: var(--spacing-xl) 0;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            border-top: 4px solid var(--primary);
+        }
+
+        .prediction-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-2) 100%);
+        }
+
+        .prediction-class {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: var(--spacing-lg) 0;
+            letter-spacing: -1px;
+            color: var(--text);
+        }
+
+        .confidence-score {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: var(--spacing-lg) 0;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-2) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .confidence-label {
+            font-size: 1.1rem;
+            color: var(--muted);
+            font-weight: 500;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 14px;
+            background: var(--bg-2);
+            border-radius: 50px;
+            margin: var(--spacing-xl) 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-2) 100%);
+            border-radius: 50px;
+            animation: widthAnim 1.5s ease-out;
+        }
+
+        @keyframes widthAnim {
+            from { width: 0; }
+            to { width: var(--percentage, 100%); }
+        }
+
+        .mri-image {
+            max-width: 450px;
+            width: 100%;
+            height: auto;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin: var(--spacing-xl) auto;
+            border: none;
+            animation: slideInUp 0.7s ease-out 0.2s backwards;
+        }
+
+        .detail-info {
+            background: var(--surface);
+            padding: var(--spacing-xl);
+            border-radius: var(--radius);
+            margin: var(--spacing-xl) 0;
+            text-align: left;
+            box-shadow: var(--shadow);
+            border: none;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-md) 0;
+            border-bottom: 1px solid var(--border-soft);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: var(--muted);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .detail-value {
+            color: var(--text);
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 12px 28px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-2) 100%);
+            color: #FFFFFF;
+            border-radius: 50px;
+            font-weight: 600;
+            margin-top: var(--spacing-lg);
+            box-shadow: 0 4px 20px rgba(47, 111, 219, 0.25);
+        }
+
+        .error-message {
+            padding: var(--spacing-xl);
+            text-align: center;
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            color: var(--muted);
+        }
+
+        .error-message p {
+            margin: var(--spacing-sm) 0;
+        }
+    </style>
 </head>
+
 <body>
-    <div class="container">
-        <div class="card">
-            <div id="content">
-                <div class="loading">Memuat data...</div>
+    <nav class="navbar">
+        <div class="nav-left">🧠 Remember Me Do</div>
+        <div class="nav-right">
+            <a href="home.html">Home</a>
+            <a href="index.html">Predict</a>
+            <a href="dashboard.html">Patient Info</a>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <div class="result-container">
+                <h2>Prediction Result</h2>
+                <p class="subtitle">AI Analysis Complete</p>
+
+                <div id="resultBox"></div>
+
+                <div class="button-group">
+                    <a href="index.html" class="btn">🔄 Predict Again</a>
+                    <a href="home.html" class="btn btn-primary">🏠 Back to Home</a>
+                </div>
             </div>
         </div>
-    </div>
+    </main>
 
-    <div class="footer">
-        <div class="logo">LOGO</div>
-    </div>
+    <footer>
+        <div class="container">
+            <p>© 2025 Remember Me Do. All rights reserved.</p>
+            <p style="font-size: 0.9rem; margin-top: var(--spacing-sm);">Advanced AI for Alzheimer's Detection</p>
+        </div>
+    </footer>
 
     <script>
-        // ============================================
-        // GANTI BASE URL API ANDA DI SINI
-        // ============================================
-        const API_BASE_URL = 'http://localhost:5000';  // Ganti dengan URL backend Anda
-        const API_ENDPOINT = `${API_BASE_URL}/predict-page`;
-        // ============================================
-        
-        // Fungsi untuk mengambil data dari URL parameter atau session storage
-        function getPredictionResult() {
-    // Ambil data langsung dari variabel Jinja yang dikirim backend
-    const predictedClass = '{{ predicted_class }}';
-    const probability = '{{ probability }}'; // Ini akan menjadi string
+        const data = JSON.parse(localStorage.getItem("predictionResult"));
 
-    // Tambahkan pemeriksaan dasar untuk memastikan data ada
-    if (predictedClass && predictedClass !== 'None' && probability && probability !== 'None') {
-        return {
-            predicted_class: predictedClass,
-            // Konversi ke float, karena dari template akan berupa string
-            probability: parseFloat(probability)
-        };
-    }
-    return null;
-}
-        
-        // Fungsi untuk mapping class name ke kategori yang user-friendly
-        function mapClassToCategory(className) {
-            const mapping = {
-                "NonDemented": "non demented",
-                "VeryMildDemented": "very mild demented",
-                "MildDemented": "mild demented",
-                "ModerateDemented": "moderate demented"
-            };
-            return mapping[className] || className.toLowerCase();
-        }
-        
-        // Fungsi untuk memproses data hasil prediksi
-        function processApiData(apiData) {
-            const probability = Math.round(apiData.probability);
-            const category = mapClassToCategory(apiData.predicted_class);
+        if (!data) {
+            document.getElementById("resultBox").innerHTML = `
+                <div class="error-message">
+                    <p style="color: var(--muted); font-size: 1.1rem; margin-bottom: var(--spacing-sm);">❌ No prediction found</p>
+                    <p style="color: var(--muted);">Please upload an image to get a prediction</p>
+                </div>
+            `;
+        } else {
+            const confidencePercent = Math.min(100, data.probability);
             
-            return {
-                probability: probability,
-                category: category
-            };
-        }
+            document.getElementById("resultBox").innerHTML = `
+                <div class="prediction-card">
+                    <div class="prediction-class">${data.predicted_class}</div>
+                    
+                    <div class="confidence-label">Confidence Score</div>
+                    <div class="confidence-score">${data.probability}%</div>
+                    
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="--percentage: ${confidencePercent}%"></div>
+                    </div>
 
-        // Fungsi untuk merender konten
-        function renderContent(data) {
-            const probability = Math.round(data.probability);
-            const category = data.category;
-            
-            const contentHTML = `
-                <h1 class="title">Probabilitas kamu memiliki diagnosa Alzheimer adalah</h1>
-                <div class="probability">${probability}%</div>
-                <div class="slider-container">
-                    <div class="slider-track">
-                        <div class="slider-fill" style="width: ${probability}%">
-                            <div class="slider-thumb"></div>
-                        </div>
+                    <span class="status-badge">✓ Analysis Complete</span>
+                </div>
+
+                <img src="${data.image_url}" class="mri-image" alt="MRI Scan Result">
+
+                <div class="detail-info">
+                    <div class="detail-row">
+                        <span class="detail-label">📄 File Name</span>
+                        <span class="detail-value">${data.filename}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">🎯 Classification</span>
+                        <span class="detail-value">${data.predicted_class}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">📊 Accuracy</span>
+                        <span class="detail-value">${data.probability}%</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">⏰ Analysis Time</span>
+                        <span class="detail-value">Real-time</span>
                     </div>
                 </div>
-                <p class="description">
-                    ini menempatkanmu sebagai orang dengan 
-                    <span class="category">${category}</span> 
-                    dalam memiliki Alzheimer.
+
+                <p style="color: var(--muted); font-size: 0.9rem; margin-top: var(--spacing-xl); padding: var(--spacing-lg); background: var(--bg-2); border-radius: var(--radius);">
+                    ℹ️ This prediction is based on AI model analysis. Please consult with a healthcare professional for medical diagnosis.
                 </p>
-                <button class="cta-button" onclick="viewMRIExample()">
-                    Klik untuk melihat contoh foto MRI
-                </button>
             `;
-            
-            document.getElementById('content').innerHTML = contentHTML;
         }
-
-        // Fungsi untuk memuat data
-        function loadData() {
-            document.getElementById('content').innerHTML = '<div class="loading">Memuat data...</div>';
-            
-            try {
-                const predictionData = getPredictionResult();
-                
-                if (!predictionData) {
-                    renderError('Tidak ada data prediksi. Silakan upload gambar MRI terlebih dahulu.');
-                    return;
-                }
-                
-                const processedData = processApiData(predictionData);
-                renderContent(processedData);
-            } catch (error) {
-                renderError(error.message || 'Terjadi kesalahan saat memproses data');
-            }
-        }
-
-        // Inisialisasi
-        window.addEventListener('DOMContentLoaded', () => {
-            // Load data dari URL params atau session storage
-            loadData();
-            
-            // Untuk testing dengan mock data, uncomment baris ini:
-            // useMockData();
-        });
     </script>
+
 </body>
 </html>
