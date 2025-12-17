@@ -146,7 +146,7 @@
                 const formData = new FormData();
                 formData.append("file", fileInput.files[0]);
 
-                const res = await fetch("http://localhost:5000/api/predict", {
+                const res = await fetch("http://10.16.127.86:5000/api/predict", {
                     method: "POST",
                     body: formData
                 });
