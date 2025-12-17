@@ -149,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
     (async function loadAll() {
         try {
             // ---- SUMMARY ----
-            const summary = await fetchJson("http://localhost:5000/api/summary");
+            const summary = await fetchJson("http://10.16.127.86:5000/api/summary");
             const s = document.getElementById("summary-cards");
             s.innerHTML = `
                 <div class="summ-card">
@@ -178,7 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
 
             // ---- DIAGNOSIS COUNT ----
-            const diag = await fetchJson("http://localhost:5000/api/diagnosis_counts");
+            const diag = await fetchJson("http://10.16.127.86:5000/api/diagnosis_counts");
             elegantBar(
                 document.getElementById("diagnosisChart").getContext("2d"),
                 diag.labels,
@@ -188,7 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
             // ---- AGE ----
-            const age = await fetchJson("http://localhost:5000/api/age_distribution");
+            const age = await fetchJson("http://10.16.127.86:5000/api/age_distribution");
             elegantBar(
                 document.getElementById("ageChart").getContext("2d"),
                 age.labels,
@@ -198,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
             // ---- BMI ----
-            const bmi = await fetchJson("http://localhost:5000/api/bmi_stats");
+            const bmi = await fetchJson("http://10.16.127.86:5000/api/bmi_stats");
             const bmiLabels = Object.keys(bmi).map(k => diagnosisMap[k] || k);
             const bmiMeans = Object.keys(bmi).map(k => bmi[k].mean);
 
@@ -211,7 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
             // ---- EDUCATION ----
-            const edu = await fetchJson("http://localhost:5000/api/education_vs_diagnosis");
+            const edu = await fetchJson("http://10.16.127.86:5000/api/education_vs_diagnosis");
             new Chart(document.getElementById("eduChart"), {
                 type: "bar",
                 data: {
@@ -230,7 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // ---- SMOKING ----
             try {
-                const smoke = await fetchJson("http://localhost:5000/api/smoking_by_diag");
+                const smoke = await fetchJson("http://10.16.127.86:5000/api/smoking_by_diag");
                 const smokeLabels = Object.keys(smoke).map(k => diagnosisMap[k] || k);
                 const smokeValues = Object.keys(smoke).map(k => smoke[k]);
                 elegantBar(
@@ -277,7 +277,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             // ---- COGNITIVE ----
-            const cognitive = await fetchJson("http://localhost:5000/api/cognitive_stats");
+            const cognitive = await fetchJson("http://10.16.127.86:5000/api/cognitive_stats");
             const mmseLabels = Object.keys(cognitive).map(k => diagnosisMap[k] || k);
             const mmseMeans = Object.keys(cognitive).map(k => cognitive[k]["MMSE"].mean);
 
@@ -290,7 +290,7 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
             // ---- RADAR ----
-            const radar = await fetchJson("http://localhost:5000/api/radar_data");
+            const radar = await fetchJson("http://10.16.127.86:5000/api/radar_data");
             elegantRadar(
                 document.getElementById("radarChart").getContext("2d"),
                 radar.labels,
@@ -298,7 +298,7 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
             // ---- CORRELATION (Top 5 by absolute value) ----
-            const corr = await fetchJson("http://localhost:5000/api/correlation_diagnosis");
+            const corr = await fetchJson("http://10.16.127.86:5000/correlation_diagnosis");
 
             // gabungkan fitur + nilai
             let pairs = corr.features.map((f, i) => ({
