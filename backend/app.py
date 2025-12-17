@@ -1,4 +1,6 @@
-from flask import Flask, request, jsonify
+# Wifi FTMM@AIRLANGGA.HOTSPOT IPV4 : http://10.16.127.86:5000
+
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import numpy as np
 import os
@@ -13,7 +15,7 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 CORS(app)  # Allow frontend (5500) to access backend API
 
-UPLOAD_FOLDER = "../frontend/static/uploads"
+UPLOAD_FOLDER = "static/uploads"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 # Load model
@@ -25,6 +27,11 @@ class_names = ["MildDemented", "ModerateDemented", "NonDemented", "VeryMildDemen
 # Load dataset
 DATA_PATH = os.path.join("data", "alzheimers_data.csv")
 df = pd.read_csv(DATA_PATH)
+
+# Global Logic for Predict
+LAST_UPLOADED_FILE = None
+HAS_UPLOAD = False
+
 
 # ========== PRE-COMPUTE DASHBOARD DATA FOR FASTER API RESPONSE ==========
 print("[STARTUP] Pre-computing dashboard data...")
@@ -125,18 +132,53 @@ print("[STARTUP] Pre-computation complete!")
 # ---------------------------------------------------
 # PREDICTION API
 # ---------------------------------------------------
-@app.route("/api/predict", methods=["POST"])
+@app.route("/api/predict", methods=["POST", "GET"])
 def predict_api():
+    global LAST_UPLOADED_FILE, HAS_UPLOAD
+
+    # =========================
+    # 1. GET REQUEST
+    # =========================
+    if request.method == "GET":
+        # Kalau belum ada upload → TOLAK
+        if not HAS_UPLOAD or LAST_UPLOADED_FILE is None:
+            return jsonify({
+                "error": "No image uploaded yet. Upload an image using POST first."
+            }), 400
+
+        filepath = LAST_UPLOADED_FILE
+
+        img = image.load_img(filepath, target_size=(224, 224))
+        img_array = np.expand_dims(image.img_to_array(img) / 255.0, 0)
+
+        preds = model.predict(img_array)
+        predicted_class = class_names[np.argmax(preds)]
+        prob = float(np.max(preds))
+
+        return jsonify({
+            "filename": os.path.basename(filepath),
+            "predicted_class": predicted_class,
+            "probability": round(prob * 100, 2)
+        }), 200
+
+    # =========================
+    # 2. POST REQUEST
+    # =========================
     if "file" not in request.files:
         return jsonify({"error": "No file"}), 400
 
     file = request.files["file"]
     filename = secure_filename(file.filename)
-    filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
 
+    filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
     file.save(filepath)
 
+    # Simpan state
+    LAST_UPLOADED_FILE = filepath
+    HAS_UPLOAD = True
+
+    # Prediksi langsung setelah upload
     img = image.load_img(filepath, target_size=(224, 224))
     img_array = np.expand_dims(image.img_to_array(img) / 255.0, 0)
 
@@ -148,7 +190,9 @@ def predict_api():
         "filename": filename,
         "predicted_class": predicted_class,
         "probability": round(prob * 100, 2)
-    })
+    }),200
+
+
 
 # ---------------------------------------------------
 # ALL API ROUTES FOR DASHBOARD
@@ -211,8 +255,16 @@ def api_radar():
 def api_corr():
     return jsonify(corr_data)
 
+
+# ---------------------------------------------------
+# API ROUTES FOR PICTURES
+# ---------------------------------------------------
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
+
 # ---------------------------------------------------
 # RUN SERVER
 # ---------------------------------------------------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True, threaded=True)
