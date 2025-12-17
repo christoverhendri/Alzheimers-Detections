@@ -1,167 +1,255 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Predict Dementia</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MRI Dementia Prediction</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/base.css?v=999">
     <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        .predict-container {
+            padding: 36px 0 48px;
+            max-width: 760px;
+            margin: 0 auto;
         }
 
-        .page-wrapper {
-            max-width: 600px;
-            margin: 80px auto;
-            padding: 50px;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        .page-wrapper h1 {
-            color: #667eea;
-            font-size: 32px;
-            margin-bottom: 15px;
+        .upload-card {
+            background: var(--bg-2);
+            border: 2px dashed rgba(47, 111, 219, 0.4);
+            padding: 60px 40px;
             text-align: center;
-            font-weight: 600;
-        }
-
-        .page-description {
-            text-align: center;
-            color: #6b7280;
-            margin-bottom: 40px;
-            font-size: 16px;
-        }
-
-        form {
+            border-radius: var(--radius);
+            transition: var(--transition);
+            cursor: pointer;
+            margin: 22px auto 24px;
+            max-width: 760px;
+            min-height: 320px;
+            max-height: 380px;
             display: flex;
             flex-direction: column;
-            gap: 25px;
-        }
-
-        .upload-area {
-            border: 3px dashed #667eea;
-            border-radius: 15px;
-            padding: 40px 20px;
-            text-align: center;
-            background: #f9fafb;
-            transition: all 0.3s ease;
-            cursor: pointer;
+            justify-content: center;
+            align-items: center;
             position: relative;
+            overflow: hidden;
         }
 
-        .upload-area:hover {
-            border-color: #764ba2;
-            background: #f3f4f6;
+        .upload-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(47, 111, 219, 0.06) 0%, rgba(36, 89, 181, 0.04) 100%);
+            opacity: 0;
+            transition: var(--transition);
         }
 
-        .upload-area.dragover {
-            border-color: #764ba2;
-            background: #e5e7eb;
+        .upload-card:hover {
+            border-color: var(--primary);
+            background: var(--surface);
+            transform: translateY(-2px);
+        }
+
+        .upload-card:hover::before {
+            opacity: 1;
+        }
+
+        .upload-card.dragover {
+            border-color: var(--primary-2);
+            background: var(--surface);
+            transform: scale(1.01);
+            box-shadow: var(--shadow);
+        }
+
+        .upload-card.dragover::before {
+            opacity: 1;
         }
 
         .upload-icon {
-            font-size: 48px;
-            color: #667eea;
-            margin-bottom: 15px;
+            font-size: 4rem;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.5;
+            position: relative;
+            z-index: 1;
         }
 
-        .upload-text {
-            color: #374151;
-            font-size: 16px;
-            margin-bottom: 10px;
+        .upload-card h3 {
+            margin: var(--spacing-sm) 0;
+            color: var(--text);
+            position: relative;
+            z-index: 1;
+            font-size: 1.35rem;
         }
 
-        .upload-subtext {
-            color: #9ca3af;
-            font-size: 14px;
+        .upload-card p {
+            color: var(--muted);
+            margin: 0;
+            position: relative;
+            z-index: 1;
+            font-size: 0.95rem;
         }
 
         input[type="file"] {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
-
-        .file-name {
-            margin-top: 15px;
-            padding: 12px;
-            background: #fef08a;
-            border-radius: 8px;
-            color: #1f2937;
-            font-weight: 500;
             display: none;
         }
 
-        button[type="submit"] {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 18px 40px;
-            border: none;
-            border-radius: 50px;
-            font-size: 18px;
-            font-weight: 600;
+        .file-label {
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
         }
 
-        button[type="submit"]:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        .processing {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            justify-content: center;
+            margin-top: var(--spacing-lg);
+            color: var(--primary);
+            font-weight: 500;
         }
 
-        button[type="submit"]:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-            transform: none;
+        .spinner {
+            border: 3px solid rgba(47, 111, 219, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            width: 32px;
+            height: 32px;
+            animation: spin 1s linear infinite;
         }
 
-        .info-note {
-            background: #eff6ff;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            border-radius: 8px;
-            color: #1e40af;
-            font-size: 14px;
-            line-height: 1.6;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
-        @media (max-width: 768px) {
-            .page-wrapper {
-                margin: 40px 20px;
-                padding: 30px 25px;
-            }
-
-            .page-wrapper h1 {
-                font-size: 26px;
-            }
+        #result {
+            margin-top: var(--spacing-xl);
+            padding: var(--spacing-xl);
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
         }
     </style>
 </head>
+
 <body>
+    <nav class="navbar">
+        <div class="nav-left">🧠 Remember Me Do</div>
+        <div class="nav-right">
+            <a href="home.html">Home</a>
+            <a href="index.html" class="active">Predict</a>
+            <a href="dashboard.html">Patient Info</a>
+        </div>
+    </nav>
 
-<nav class="navbar">
-    <div>Remember Me Do</div>
-    <a href="{{ url_for('home') }}">Home</a>
-    <a href="{{ url_for('index) }}">Predict</a>
-    <a href="{{ url_for('dashboard') }}">Patient Info</a>
-</nav>
+    <main>
+        <div class="predict-container">
+            <h1 class="page-title text-center">MRI Dementia Status Prediction</h1>
+            <p class="page-sub text-center">Upload MRI image untuk analisis tingkat demensia berbasis AI</p>
 
-<div class="page-wrapper">
-    <h1>Upload MRI Brain Image</h1>
-    <p class="page-description">Silakan upload gambar scan MRI otak untuk analisis tingkat demensia</p>
-    <form action="{{ url_for('result') }}" method="POST" enctype="multipart/form-data">
-        <input type="file" name="file" accept="image/*" required>
-        <br><br>
-        <button type="submit">Predict</button>
-    </form>
-</div>
+            <form id="uploadForm">
+                <div class="upload-card" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <h3>Upload MRI Image</h3>
+                    <p>
+                        Drag and drop your MRI image here or click to select
+                    </p>
+                    <input type="file" id="file" name="file" accept="image/*" required />
+                </div>
+
+                <button type="submit" class="btn" style="display: block; margin: 0 auto;">🔍 Analyze & Predict</button>
+            </form>
+
+            <div id="processingIndicator" class="processing" style="display: none;">
+                <div class="spinner"></div>
+                <span>Analyzing MRI image...</span>
+            </div>
+
+            <div id="result"></div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2025 Remember Me Do. All rights reserved.</p>
+            <p style="font-size: 0.9rem; margin-top: var(--spacing-sm);">Advanced AI for Alzheimer's Detection</p>
+        </div>
+    </footer>
+
+    <script>
+        const uploadArea = document.getElementById("uploadArea");
+        const fileInput = document.getElementById("file");
+        const uploadForm = document.getElementById("uploadForm");
+        const processingIndicator = document.getElementById("processingIndicator");
+
+        // Drag and drop
+        uploadArea.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            uploadArea.classList.add("dragover");
+        });
+
+        uploadArea.addEventListener("dragleave", () => {
+            uploadArea.classList.remove("dragover");
+        });
+
+        uploadArea.addEventListener("drop", (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove("dragover");
+            fileInput.files = e.dataTransfer.files;
+            if (fileInput.files[0]) {
+                uploadArea.querySelector("p").textContent = `Selected: ${fileInput.files[0].name}`;
+                uploadArea.querySelector("h3").style.color = "var(--primary)";
+            }
+        });
+
+        uploadArea.addEventListener("click", () => fileInput.click());
+
+        fileInput.addEventListener("change", () => {
+            if (fileInput.files[0]) {
+                uploadArea.querySelector("p").textContent = `Selected: ${fileInput.files[0].name}`;
+                uploadArea.querySelector("h3").style.color = "var(--primary)";
+            }
+        });
+
+        uploadForm.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            if (!fileInput.files[0]) {
+                alert("Please select an image first");
+                return;
+            }
+
+            processingIndicator.style.display = "flex";
+
+            try {
+                const formData = new FormData();
+                formData.append("file", fileInput.files[0]);
+
+                const res = await fetch("http://192.168.1.6:5000/api/predict", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (!res.ok) {
+                    throw new Error(`API Error: ${res.status}`);
+                }
+
+                let data = await res.json();
+
+                if (!data.filename || !data.predicted_class) {
+                    throw new Error("Invalid response from API");
+                }
+
+                localStorage.setItem("predictionResult", JSON.stringify(data));
+                window.location.href = "result.html";
+
+            } catch (err) {
+                processingIndicator.style.display = "none";
+                alert("Error: " + err.message);
+            }
+        });
+    </script>
 
 </body>
 </html>
